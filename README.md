@@ -1,12 +1,11 @@
 # NFT Rarity Ranking Service
 
-A service that calculates and updates rarity rankings for NFT collections stored in MongoDB using the OpenRarity library.
+A service that calculates and updates rarity rankings for NFT collections stored in nft-indexer using the OpenRarity library.
 
 ## Features
 
 - Calculates rarity scores for NFT collections using OpenRarity
-- Stores NFT metadata and rarity rankings in MongoDB
-- Supports multiple blockchain networks (Ethereum, Polygon, etc.)
+- Stores NFT metadata and rarity rankings in nft-indexer
 - Configurable rarity calculation parameters
 - Efficient bulk updates for large collections
 - Error handling and logging
@@ -14,11 +13,12 @@ A service that calculates and updates rarity rankings for NFT collections stored
 
 ## Requirements
 
-- Python 3.8+
+- Python >= 3.10, < 3.13 (required for OpenRarity compatibility)
 - MongoDB
-- OpenRarity library
-- Web3.py
-- Required Python packages (see requirements.txt)
+- pymongo >= 4.6.0
+- python-dotenv >= 1.0.0
+- schedule >= 1.2.0
+- OpenRarity (from GitHub)
 
 ## Installation
 
@@ -51,15 +51,9 @@ Edit the `.env` file with your settings:
 ```env
 # MongoDB Configuration
 MONGODB_URI=mongodb://localhost:27017
-MONGODB_DB=nft_ranking
-MONGODB_COLLECTION=nft_search
 
-# Blockchain Configuration
-ETHEREUM_RPC_URL=https://mainnet.infura.io/v3/your-project-id
-POLYGON_RPC_URL=https://polygon-rpc.com
-
-# OpenRarity Configuration
-RARITY_WEIGHTS={"trait_count": 0.3, "statistical_rarity": 0.7}
+# Update Configuration
+RARITY_UPDATE_INTERVAL=15  # Update interval in minutes
 ```
 
 ## Usage
@@ -76,18 +70,17 @@ RARITY_WEIGHTS={"trait_count": 0.3, "statistical_rarity": 0.7}
 
 ## Logging
 
-Logs are stored in the `logs` directory:
-- `nft_ranking.log`: Main application logs
-- `error.log`: Error logs
+The service logs all operations to console output, including:
+- Update start and completion times
+- Number of NFTs processed
+- Success/failure of operations
+- Any errors encountered
 
 ## Error Handling
 
 The service includes comprehensive error handling for:
 - MongoDB connection issues
-- Blockchain RPC failures
 - Invalid NFT metadata
-- Rate limiting
-- Network timeouts
 
 ## Project Structure
 
@@ -99,8 +92,5 @@ nft-ranking-service/
 ├── requirements.txt
 ├── setup.sh
 ├── update_rarity.sh
-├── update_rarity_ranking.py
-└── logs/
-    ├── nft_ranking.log
-    └── error.log
+└── update_rarity_ranking.py
 ``` 
