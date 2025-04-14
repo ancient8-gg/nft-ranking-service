@@ -1,4 +1,4 @@
-# NFT Rarity Ranking Service
+# Rarity Service
 
 A service that calculates and updates rarity rankings for NFT collections stored in nft-indexer using the OpenRarity library.
 
@@ -13,84 +13,147 @@ A service that calculates and updates rarity rankings for NFT collections stored
 
 ## Requirements
 
-- Python >= 3.10, < 3.13 (required for OpenRarity compatibility)
+- **Python 3.10 or 3.11** (Note: Python 3.12+ is NOT compatible with OpenRarity)
 - MongoDB
 - pymongo >= 4.6.0
 - python-dotenv >= 1.0.0
 - schedule >= 1.2.0
-- OpenRarity (from GitHub)
+- open-rarity >= 0.7.5
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/nft-ranking-service.git
-cd nft-ranking-service
+git clone https://github.com/yourusername/rarity-service.git
+cd rarity-service
 ```
 
-2. Create and activate a virtual environment:
+2. **Ensure you have Python 3.10 or 3.11 installed**:
+```bash
+python --version
+```
+
+   If you don't have the correct Python version, you can:
+   
+   - Install via pyenv:
+     ```bash
+     pyenv install 3.10.13
+     pyenv local 3.10.13
+     ```
+   - Or use Docker (recommended, see Docker section below)
+
+3. Create and activate a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+4. Setup the project:
 ```bash
-pip install -r requirements.txt
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ```
 
-4. Copy the example environment file and configure your settings:
-```bash
-cp .env.example .env
-```
+This script will:
+- Check Python version
+- Create a virtual environment
+- Install dependencies
+- Create necessary directories
+- Copy the .env.example to .env
 
-## Configuration
-
-Edit the `.env` file with your settings:
-
+5. Configure your settings in the .env file:
 ```env
 # MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017
+MONGODB_URI=mongodb://localhost:27017/nft_indexer
 
 # Update Configuration
 RARITY_UPDATE_INTERVAL=15  # Update interval in minutes
+
+# Logging Configuration
+LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 ```
 
 ## Usage
 
-1. Start the service:
+### Running Locally
+
+1. Start the service (automatic updates):
 ```bash
-./setup.sh
+python src/main.py
 ```
 
-2. Update rarity rankings:
+2. Update rarity rankings for a specific contract:
 ```bash
-./update_rarity.sh
+chmod +x scripts/update_rarity.sh
+./scripts/update_rarity.sh <contract_address>
 ```
 
-## Logging
+3. Run one-time update for all collections:
+```bash
+python src/main.py --run-once
+```
 
-The service logs all operations to console output, including:
-- Update start and completion times
-- Number of NFTs processed
-- Success/failure of operations
-- Any errors encountered
+### Running with Docker (Recommended)
 
-## Error Handling
+Using Docker is recommended as it bundles the correct Python version and all dependencies:
 
-The service includes comprehensive error handling for:
-- MongoDB connection issues
-- Invalid NFT metadata
+1. Make sure your `.env` file is configured correctly with the MongoDB connection string.
+
+2. Build the Docker image:
+```bash
+docker build -t rarity-service .
+```
+
+3. Run the container:
+```bash
+docker run -d --name rarity-service --env-file .env rarity-service
+```
+
+4. Check the logs:
+```bash
+docker logs -f rarity-service
+```
+
+5. To update rarity rankings for a specific contract:
+```bash
+docker exec -it rarity-service python src/main.py --contract-address <contract_address>
+```
+
+6. Stop and remove the container:
+```bash
+docker stop rarity-service
+docker rm rarity-service
+```
+
+#### Docker Notes
+
+- If your MongoDB is running on the host machine, use `host.docker.internal` instead of `localhost` in the MongoDB URI.
+- For MongoDB with authentication:
+  ```
+  MONGODB_URI=mongodb://username:password@your-mongodb-host:27017/nft_indexer
+  ```
 
 ## Project Structure
 
 ```
-nft-ranking-service/
+rarity-service/
 ├── .env.example
 ├── .gitignore
+├── Dockerfile
 ├── README.md
 ├── requirements.txt
-├── setup.sh
-├── update_rarity.sh
-└── update_rarity_ranking.py
+├── setup.py
+├── logs/
+│   └── .gitkeep
+├── scripts/
+│   ├── setup.sh
+│   └── update_rarity.sh
+└── src/
+    ├── main.py
+    └── rarity_service/
+        ├── __init__.py
+        ├── cli.py
+        ├── config.py
+        ├── scheduler.py
+        └── updater.py
 ``` 

@@ -1,5 +1,5 @@
-# Python >= 3.10, < 3.13 required for OpenRarity compatibility
+# IMPORTANT: Python 3.10 or 3.11 is required (Python 3.12+ is not compatible with OpenRarity)
 pymongo>=4.6.0
 python-dotenv>=1.0.0
 schedule>=1.2.0
-git+https://github.com/OpenRarity/open-rarity.git
+open-rarity>=0.7.5
