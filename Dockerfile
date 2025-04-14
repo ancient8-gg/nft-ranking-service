@@ -1,6 +1,6 @@
 # Use Python 3.10 since OpenRarity requires Python 3.10 or 3.11
 # Note: Python 3.12+ is not compatible with OpenRarity
-FROM python:3.10-slim
+FROM public.ecr.aws/docker/library/python:3.10-slim
 
 # Set working directory in container
 WORKDIR /app
@@ -29,4 +29,4 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Run the application
-CMD ["python", "src/main.py"] 
+ENTRYPOINT ["python", "src/main.py"] 

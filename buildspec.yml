@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR.....
+      - aws --version
+      - echo $AWS_REGION
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL
+
+  build:
+    commands:
+      - IMAGE_TAG="$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)"
+      - echo Docker Build started on `date`
+      - docker build -t service_app -f Dockerfile .
+      - docker tag service_app:latest ${REPOSITORY_URL}:latest
+      - docker tag service_app:latest ${REPOSITORY_URL}:${IMAGE_TAG}
+      - echo Docker Build completed on `date`
+
+  post_build:
+    commands:
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URL:latest
+      - docker push $REPOSITORY_URL:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '[\n\t{\n\t\t"name":"%s",\n\t\t"imageUri":"%s"\n\t}\n]' $CONTAINER_NAME $REPOSITORY_URL:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
