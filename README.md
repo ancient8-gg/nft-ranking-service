@@ -1,4 +1,4 @@
-# Rarity Service
+# NFT Rarity Ranking Service
 
 A service that calculates and updates rarity rankings for NFT collections stored in nft-indexer using the OpenRarity library.
 
@@ -24,8 +24,8 @@ A service that calculates and updates rarity rankings for NFT collections stored
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/rarity-service.git
-cd rarity-service
+git clone https://github.com/ancient8-gg/nft-ranking-service.git
+cd nft-ranking-service
 ```
 
 2. **Ensure you have Python 3.10 or 3.11 installed**:
