@@ -1,39 +1,14 @@
-import os
-import argparse
+"""Module for updating NFT rarity rankings."""
+
 import logging
-import time
 from datetime import datetime
 from typing import Dict, List, Any
-import schedule
 
 from pymongo import MongoClient
-from open_rarity import Collection, Token, RarityRanker
-from dotenv import load_dotenv
 from pymongo.operations import UpdateOne
+from open_rarity import Collection, Token, RarityRanker
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger(__name__)
-
-# Load environment variables
-load_dotenv()
-
-# Get update interval from environment with validation (in minutes)
-try:
-    UPDATE_INTERVAL_MINUTES = int(os.getenv('RARITY_UPDATE_INTERVAL', '15'))
-    if UPDATE_INTERVAL_MINUTES < 1:
-        logger.warning("RARITY_UPDATE_INTERVAL is less than 1 minute, defaulting to 15 minutes")
-        UPDATE_INTERVAL_MINUTES = 15
-    logger.info(f"Using update interval of {UPDATE_INTERVAL_MINUTES} minutes from environment")
-except ValueError:
-    logger.warning("Invalid RARITY_UPDATE_INTERVAL value in environment, defaulting to 15 minutes")
-    UPDATE_INTERVAL_MINUTES = 15
 
 class RarityRankingUpdater:
     def __init__(self, connection_string: str):
@@ -223,68 +198,4 @@ class RarityRankingUpdater:
     
     def close(self):
         """Close MongoDB connection."""
-        self.client.close()
-
-def run_scheduled_updates():
-    """Run the rarity update on a schedule."""
-    connection_string = os.getenv('MONGODB_URI')
-    if not connection_string:
-        logger.error("MONGODB_URI environment variable not set")
-        return
-
-    def update_job():
-        try:
-            logger.info(f"Starting scheduled update at {datetime.now()}")
-            updater = RarityRankingUpdater(connection_string)
-            try:
-                updater.update_all_collections()
-            finally:
-                updater.close()
-            logger.info(f"Completed scheduled update at {datetime.now()}")
-        except Exception as e:
-            logger.error(f"Error in scheduled update: {str(e)}")
-
-    # Schedule the job to run every UPDATE_INTERVAL_MINUTES minutes
-    schedule.every(UPDATE_INTERVAL_MINUTES).minutes.do(update_job)
-    
-    # Run the job immediately on startup
-    update_job()
-    
-    logger.info(f"Scheduled rarity updates every {UPDATE_INTERVAL_MINUTES} minutes")
-    
-    # Keep the script running
-    while True:
-        try:
-            schedule.run_pending()
-            time.sleep(1)
-        except KeyboardInterrupt:
-            logger.info("Rarity update service stopped by user")
-            break
-        except Exception as e:
-            logger.error(f"Error in scheduler: {str(e)}")
-            time.sleep(60)
-
-def main():
-    parser = argparse.ArgumentParser(description='Update NFT rarity rankings')
-    parser.add_argument('--contract-address', type=str, help='Contract address to update (optional)', required=False)
-    
-    args = parser.parse_args()
-    
-    if args.contract_address:
-        # Update specific contract
-        connection_string = os.getenv('MONGODB_URI')
-        if not connection_string:
-            logger.error("MONGODB_URI environment variable not set")
-            return
-        
-        updater = RarityRankingUpdater(connection_string)
-        try:
-            updater.update_collection_rarity(args.contract_address)
-        finally:
-            updater.close()
-    else:
-        # Run scheduled updates
-        run_scheduled_updates()
-
-if __name__ == "__main__":
-    main() 
+        self.client.close() 

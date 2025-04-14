@@ -1,10 +1,43 @@
-# Environment variables
-.env
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Python virtual environment
+# Virtual environments
 venv/
 env/
 ENV/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Environment variables
+.env
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Docker
+.dockerignore
+
+# macOS files
+.DS_Store
+
+# Other
+.coverage
+htmlcov/
+*.log
+rarity_update.log
+.pytest_cache/
 
 # Python cache files
 __pycache__/
