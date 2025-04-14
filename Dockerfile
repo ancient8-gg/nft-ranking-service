@@ -9,19 +9,13 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y git && apt-get clean
 
 # Copy only necessary files first to leverage Docker cache
-COPY setup.py .
-COPY requirements.txt .
-COPY src/ ./src/
+COPY . .
 
 # Install dependencies
 RUN pip install --no-cache-dir -e .
 
 # Create necessary directories
 RUN mkdir -p logs
-
-# Copy config file(s)
-COPY .env.example .
-COPY .env .
 
 # Run as non-root user for better security
 RUN useradd -m appuser
